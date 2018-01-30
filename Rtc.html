@@ -1,110 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>webrtc</title>
-</head>
-<body>
-<article>
-    <style scoped>
-        video {
-            transform: scaleX(-1);
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <title>getUserMedia拍照上传</title>
+    <!--[if lt IE 9]>
+    <script>alert('您的浏览器版本过低，请更新本版本浏览器，或更换为诸如谷歌浏览器的现代浏览器')</script><![endif]-->
+    <style>
+        .bg {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: block;
+            width: 500px;
+            height: 400px;
+            background: #000;
         }
 
-        p {
-            text-align: center;
+        .tips {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: .5rem 1rem;
+            background: #f7f7f7;
+        }
+
+        .copyright {
+            position: absolute;
+            z-index: 9999;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: .5rem 1rem;
+            background: #fff;
+            box-shadow: 0 0 1rem rgba(0, 0, 0, .2);
         }
     </style>
-    <h1>Snapshot Kiosk</h1>
-    <section id="splash">
-        <p id="errorMessage">Loading...</p>
-    </section>
-    <section id="app" hidden>
-        <p>
-            <video id="monitor" autoplay></video>
-            <canvas id="photo"></canvas>
-        <p><input type=button value="&#x1F4F7;" onclick="snapshot()">
-    </section>
-    <script>
-        var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
-        getUserMedia({video: true}, gotStream, noStream);
-        var video = document.getElementById('monitor');
-        var canvas = document.getElementById('photo');
-        function gotStream(stream) {
-            video.src = URL.createObjectURL(stream);
-            video.onerror = function () {
-                stream.stop();
-            };
-            stream.onended = noStream;
-            video.onloadedmetadata = function () {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                document.getElementById('splash').hidden = true;
-                document.getElementById('app').hidden = false;
-            };
+</head>
+
+<body>
+<video class="bg"></video>
+<canvas style="display:none" id="canvas" width="320" height="320">
+</canvas>
+<p id="snap">拍照</p>
+<!--<div class="tips">调取摄像头只适用于安卓机，苹果机可使用全景画布作为替代方案，另：此方法必须使用 https</div>-->
+<script>
+    window.onload = function () {
+        try {
+            document.getElementById("support").innerHTML = "浏览器支持HTML5 CANVAS";
         }
-        function noStream() {
-            document.getElementById('errorMessage').textContent = 'No camera available.';
+        catch (e) {
+            document.getElementById("support").innerHTML = "浏览器不支持HTML5 CANVAS";
         }
-        function snapshot() {
-            canvas.getContext('2d').drawImage(video, 0, 0);
+    };
+
+        window.URL = (window.URL || window.webkitURL || window.mozURL || window.msURL);
+        if (navigator.mediaDevices === undefined) {
+            navigator.mediaDevices = {};
         }
-    </script>
-    <script>
-        /*window.onload = function () {
-            try {
-                document.getElementByIdx("support").innerHTML = "浏览器支持HTML5 CANVAS";
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+            navigator.mediaDevices.getUserMedia = function (constraints) {
+                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                if (!getUserMedia) {
+                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                }
+                return new Promise(function (resolve, reject) {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                });
             }
-            catch (e) {
-                document.getElementByIdx("support").innerHTML = "浏览器不支持HTML5 CANVAS";
+        }
+
+        // 配置设置
+        var mediaOpts = {
+            audio: false,
+            video: true,
+            // video: { width: 1280, height: 720 }
+            //video: { facingMode: "user"}, // 或者 "user"
+        }
+
+        // 成功回调
+        function successFunc(stream) {
+            var video = document.querySelector('video');
+            var canvas = document.getElementById("canvas"),
+                context = canvas.getContext("2d");
+            if ("srcObject" in video) {
+                video.srcObject = stream;
+            } else {
+                video.src = window.URL && window.URL.createObjectURL(stream) || stream;
             }
-        };*/
-        window.addEventListener("DOMContentLoaded", function () {
-            var canvas = document.getElementByIdx("canvas"),
-                context = canvas.getContext("2d"),
-                video = document.getElementByIdx("video"),
-                videoObj = {"video": true},
-                errBack = function (error) {
-                    console.log("Video capture error: ", error.code);
-                };
-            if (navigator.getUserMedia) {
-                navigator.getUserMedia(videoObj, function (stream) {
-                    video.src = stream;
-                    video.play();
-                }, errBack);
-            } else if (navigator.webkitGetUserMedia) {
-                navigator.webkitGetUserMedia(videoObj, function (stream) {
-                    video.src = window.webkitURL.createObjectURL(stream);
-                    video.play();
-                }, errBack);
-            }
-            //这个是拍照按钮的事件，
-            $("#snap").click(function () {
+            video.play();
+            document.getElementById("snap").addEventListener("click",function () {
                 context.drawImage(video, 0, 0, 320, 320);
-                //CatchCode();
-            });
-        }, false);
-        var interval = setInterval(CatchCode, "300");
-        function CatchCode() {
-            $("#snap").click();
-            var canvans = document.getElementByIdx("canvas");
-            var imgData = canvans.toDataURL();
-            var base64Data = imgData.substr(22);
-            $.post("uploadImgCode.ashx", {"img": base64Data}, function (data, status) {
-                if (status == "success") {
-                    if (data == "OK") {
-                        alert("二维 已经解析");
-                    }
-                    else {
-                        // alert(data);
-                    }
-                }
-                else {
-                    alert("数据上 失败");
-                }
-            }, "text");
+            },false);
         }
-    </script>
-</article>
+
+        function errorFunc(err) {
+            alert(err.name);
+        }
+
+        navigator.mediaDevices.getUserMedia(mediaOpts).then(successFunc).catch(errorFunc);
+
+
+</script>
 </body>
 </html>

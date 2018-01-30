@@ -20,8 +20,8 @@
             left: 0;
             right: 0;
             display: block;
-            width: 100%;
-            height: 100%;
+            width: 500px;
+            height: 400px;
             background: #000;
         }
 
@@ -63,7 +63,7 @@
             document.getElementByIdx("support").innerHTML = "浏览器不支持HTML5 CANVAS";
         }
     };
-    window.addEventListener("DOMContentLoaded", function () {
+
         window.URL = (window.URL || window.webkitURL || window.mozURL || window.msURL);
         if (navigator.mediaDevices === undefined) {
             navigator.mediaDevices = {};
@@ -79,7 +79,7 @@
                 });
             }
         }
-   })
+
         // 配置设置
         var mediaOpts = {
             audio: false,
@@ -110,7 +110,7 @@
 
         navigator.mediaDevices.getUserMedia(mediaOpts).then(successFunc).catch(errorFunc);
 
- 
+
 </script>
 </body>
 </html>

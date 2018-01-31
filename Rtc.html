@@ -74,15 +74,15 @@
             }
             video.play();
             document.getElementById("snap").addEventListener("click",function () {
-                context.width = window.innerWidth;
-                context.height = window.innerWidth;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerWidth;
                 var img = new Image();
                 img.onload = function () {
-                    img.width = context.width;
-                    img.height = context.height;
+                    img.width = canvas.width;
+                    img.height = canvas.height;
                 }
                 context.drawImage(video, 0, 0, context.width, context.height);
-                var img64 = context.toDataURL("image/jpeg","0.8");
+                var img64 = canvas.toDataURL("image/jpeg","0.8");
                 img.src = img64;
             },false);
         }

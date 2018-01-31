@@ -76,13 +76,14 @@
             video.play();
             document.getElementById("snap").addEventListener("click",function () {
                 canvas.width = window.innerWidth;
-                canvas.height = window.innerWidth;
+                canvas.height = window.innerHeight;
                 var img = new Image();
                 img.onload = function () {
                     img.width = canvas.width;
                     img.height = canvas.height;
                 }
                 context.drawImage(video, 0, 0, context.width, context.height);
+                video.style.display = "none";
                 var img64 = canvas.toDataURL("image/jpeg","0.8");
                 img.src = img64;
             },false);

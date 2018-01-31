@@ -15,8 +15,8 @@
     <style>
         .bg {
             display: block;
-            width: 500px;
-            height: 400px;
+            width: 100%;
+            height: 100%;
             background: #000;
         }
     </style>
@@ -24,8 +24,7 @@
 
 <body>
 <video class="bg"></video>
-    <p id="support"></p>    
-<canvas  id="canvas" width="320" height="320">
+<canvas style="" id="canvas" width="320" height="320">
 </canvas>
 <p id="snap">拍照</p>
 <!--<div class="tips">调取摄像头只适用于安卓机，苹果机可使用全景画布作为替代方案，另：此方法必须使用 https</div>-->
@@ -75,12 +74,21 @@
             }
             video.play();
             document.getElementById("snap").addEventListener("click",function () {
-                context.drawImage(video, 0, 0, 320, 320);
+                context.width = window.innerWidth;
+                context.height = window.innerWidth;
+                var img = new Image();
+                img.onload = function () {
+                    img.width = context.width;
+                    img.height = context.height;
+                }
+                context.drawImage(video, 0, 0, context.width, context.height);
+                var img64 = context.toDataURL("image/jpeg","0.8");
+                img.src = img64;
             },false);
         }
 
         function errorFunc(err) {
-            alert(err.name);
+            console.log(err.name);
         }
 
         navigator.mediaDevices.getUserMedia(mediaOpts).then(successFunc).catch(errorFunc);

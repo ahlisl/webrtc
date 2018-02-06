@@ -13,7 +13,7 @@
     <!--[if lt IE 9]>
     <script>alert('您的浏览器版本过低，请更新本版本浏览器，或更换为诸如谷歌浏览器的现代浏览器')</script><![endif]-->
     <style>
-        .bg {
+        #videoPh {
             position: fixed;
             top:0;
             left:0;
@@ -24,24 +24,29 @@
             height: 100%;
             background: #000;
         }
+        .bg {
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
     </style>
 </head>
 
 <body>
-<video class="bg"></video>
-<canvas style="" id="canvas">
-</canvas>
-<p id="snap">拍照</p>
+<div id="videoPh">
+    <video class="bg"></video>
+    <button type="button" id="snap">拍照</button>
+</div>
+<div id="canvasImg">
+    <canvas style="" id="canvas">
+    </canvas>
+    <button type="button" id="remake">重拍</button>
+    <button type="button" id="ensure">确定</button>
+</div>
+
 <!--<div class="tips">调取摄像头只适用于安卓机，苹果机可使用全景画布作为替代方案，另：此方法必须使用 https</div>-->
 <script>
-    window.onload = function () {
-        try {
-            document.getElementById("support").innerHTML="浏览器支持HTML5 CANVAS";
-        }
-        catch (e) {
-            document.getElementById("support").innerHTML="浏览器不支持HTML5 CANVAS";
-        }
-    };
+    
 
         window.URL = (window.URL || window.webkitURL || window.mozURL || window.msURL);
         if (navigator.mediaDevices === undefined) {
@@ -87,10 +92,15 @@
                     img.height = canvas.height;
                 }
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                video.style.display = "none";
+                document.getElementById("canvasImg").style.display = "block";
+                document.getElementById("videoPh").style.display = "none";
                 var img64 = canvas.toDataURL("image/jpeg","0.8");
                 img.src = img64;
                 console.log("0000",img64)
+            },false);
+            document.getElementById("remake").addEventListener("click",function () {
+                document.getElementById("videoPh").style.display = "block";
+                document.getElementById("canvasImg").style.display = "none";
             },false);
         }
 
